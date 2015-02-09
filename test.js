@@ -11,6 +11,9 @@ var mainMenu = (function(program) {
   menu.option("option 1", "main1");
   menu.option("option 2", "main2");
   menu.option("option 3", "main3");
+  menu.option({lable: "option 4", data: 'other data'}, "main3", function (obj) {
+    console.log(obj.data);
+  });
   menu.spacer();
   menu.text("The next two options are 'live' options, in that toggling them will trigger a callback for");
   menu.text("them, with their current state as boolean argument.");

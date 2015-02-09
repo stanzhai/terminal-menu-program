@@ -1,4 +1,5 @@
 var createMenu = require("terminal-menu");
+var is = require("is");
 var copy = function(o) { return JSON.parse(JSON.stringify(o)); };
 
 var Menu = function(name, program) {
@@ -59,7 +60,12 @@ Menu.prototype = {
     this.text('');
   },
   option: function(s, n, callback) {
-    var op = { type: "option", content: s, screen: n, callback: callback };
+    var op = { type: "option", content: s, data: s, screen: n, callback: callback };
+    if (is.object(s) && 'lable' in s) {
+      op.content = s.lable;
+    } else {
+      op.content = s;
+    }
     this.addSelectable(op);
   },
   check: function(s, toggled, callback) {
@@ -113,7 +119,7 @@ Menu.prototype = {
           });
         }
         if(entry.callback) {
-          entry.callback();
+          entry.callback(entry.data);
         }
       }
       if(entry.type === "confirm") {

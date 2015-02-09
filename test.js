@@ -62,6 +62,8 @@ var toggleMenu =(function(program){
   menu.check("toggle 3");
   menu.check("toggle 4");
   menu.check("toggle 5");
+  menu.radio("radio 1", true);
+  menu.radio("radio 2");
   menu.spacer();
   menu.confirm("save", "main", function(data) { /* ... */ });
   menu.cancel("cancel", "main", function(data) { /* ... */ });

@@ -12,6 +12,8 @@ Menu.prototype = {
     this.program = program;
     this.operations = [];
     this.selectables = [];
+    this.radios = {};
+    this._radios = {};
     this.options = {};
     this._options = {};
   },
@@ -20,10 +22,18 @@ Menu.prototype = {
   },
   cacheOptions: function() {
     this._options = copy(this.options);
+    this._radios = copy(this.radios);
   },
   restoreOptions: function() {
     this.options = copy(this._options);
-    this.selectables.forEach(function(op) { op.toggled = this.options[op.content]; }.bind(this));
+    this.radios = copy(this._radios);
+    this.selectables.forEach(function(op) { 
+      if (op.type == 'checkbox') {
+        op.toggled = this.options[op.content]; 
+      } else if (op.type == 'radio') {
+        op.toggled = this.radios[op.content];
+      } 
+    }.bind(this));
   },
   start: function() {
     this.menu = createMenu({
@@ -77,6 +87,15 @@ Menu.prototype = {
     this.addSelectable(op);
     this.options[s] = toggled;
   },
+  radio: function(s, toggled, callback) {
+    if(typeof toggled === "function") {
+      callback = toggled;
+      toggled = false;
+    }
+    var op = { type: "radio", content: s, toggled: toggled, callback: callback };
+    this.addSelectable(op);
+    this.radios[s] = toggled; 
+  },
   confirm: function(label, nextScreen, callback) {
     if(typeof nextScreen === "function") {
       callback = nextScreen;
@@ -111,6 +130,20 @@ Menu.prototype = {
         if(entry.callback) { entry.callback(entry.toggled); }
         return this.draw(idx);
       }
+      if(entry.type === "radio") {
+        for (var key in this.radios) {
+          this.radios[key] = false;
+        }
+        this.selectables.forEach(function (op) {
+          if (op.type === "radio") {
+            op.toggled = false;
+          }
+        });
+        entry.toggled =  true;
+        this.radios[entry.content] = true;
+        if(entry.callback) { entry.callback(entry.toggled); }
+        return this.draw(idx);
+      }
       if(entry.type === "option") {
         this.departureidx = idx;
         if(entry.screen) {
@@ -124,7 +157,7 @@ Menu.prototype = {
       }
       if(entry.type === "confirm") {
         if(entry.callback) {
-          entry.callback(copy(this.options));
+          entry.callback(copy({options: this.options, radios: this.radios}));
         }
         if(entry.screen) {
           this.program.run(entry.screen);
@@ -157,7 +190,8 @@ Menu.prototype = {
         case "option":
         case "confirm":
         case "cancel": label = "[" + label + "]"; menu.add(label); break;
-        case "checkbox": label = "[" + (op.toggled ? 'x' : ' ') + "] " + label; menu.add(label); break;
+        case "checkbox": label = "[" + (op.toggled ? '√' : ' ') + "] " + label; menu.add(label); break;
+        case "radio": label = "[" + (op.toggled ? '●' : ' ') + "] " + label; menu.add(label); break;
       }
       op.label = label;
       if(idx === optionidx) { menu.jump(idx); }

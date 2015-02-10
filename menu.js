@@ -71,8 +71,8 @@ Menu.prototype = {
   },
   option: function(s, n, callback) {
     var op = { type: "option", content: s, data: s, screen: n, callback: callback };
-    if (is.object(s) && 'lable' in s) {
-      op.content = s.lable;
+    if (is.object(s) && 'label' in s) {
+      op.content = s.label;
     } else {
       op.content = s;
     }
